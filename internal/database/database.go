@@ -15,17 +15,20 @@ func NewDB() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		return nil
+		panic("Something went wrong inside the database")
 	}
 
 	err = db.AutoMigrate(
-		&entity.Project{},
-		&entity.Team{},
-		&entity.User{},
+		entity.User{},
+		entity.Class{},
+		entity.Task{},
+		entity.Subject{},
+		entity.Schedule{},
 	)
 
 	if err != nil {
-		return nil
+		fmt.Println(err)
+		panic("Failed to migrate the database")
 	}
 
 	fmt.Println("Connected to database")

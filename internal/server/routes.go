@@ -1,14 +1,20 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/middleware"
+	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/modules/user"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {fmt.Println("tes")})
+	userRepository := user.NewRepo(s.DB)
+	userService := user.NewService(userRepository)
+	userHandler := user.NewHandler(userService)
 
-	return mux
+	mux.HandleFunc("POST /", userHandler.Register)
+	
+	return middleware.CORSMiddleware(mux)
 }

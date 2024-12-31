@@ -66,7 +66,7 @@ func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string
 	return accessTokenStr, nil
 }
 
-func GenerateAndSetRefreshToken(w http.ResponseWriter,id uint64, username string, email string, role string, motto *string) (string, error) {
+func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username string, email string, role string, motto *string) (string, error) {
 	Exp := time.Now().Add(24 * time.Hour * 7)
 
 	claims := Claims{
@@ -91,7 +91,6 @@ func GenerateAndSetRefreshToken(w http.ResponseWriter,id uint64, username string
 	if err != nil {
 		return "", err
 	}
-
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "RefreshToken",
@@ -150,4 +149,22 @@ func DecodeAccessToken(r *http.Request) (*Claims, error) {
 	}
 
 	return claims, nil
+}
+
+func ValidateAccessToken(accessToken string) error {
+	token, err := jwt.ParseWithClaims(accessToken, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+		return accessTokenSecret, nil
+	})
+
+	if err != nil || !token.Valid {
+		return fmt.Errorf("invalid token: %v", err)
+	}
+
+	_, ok := token.Claims.(*Claims)
+
+	if !ok {
+		return fmt.Errorf("failed to parse claims")
+	}
+
+	return nil
 }

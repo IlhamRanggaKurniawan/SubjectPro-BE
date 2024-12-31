@@ -9,6 +9,7 @@ import (
 
 func (s *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
+	middlewares := middleware.CreateStack(middleware.AuthMiddelware, middleware.CORSMiddleware)
 
 	userRepository := user.NewRepo(s.DB)
 	userService := user.NewService(userRepository)
@@ -19,5 +20,5 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("POST /v1/auth/logout", userHandler.Logout)
 	mux.HandleFunc("GET /v1/auth/token", userHandler.GetToken)
 	
-	return middleware.CORSMiddleware(mux)
+	return middlewares(mux)
 }

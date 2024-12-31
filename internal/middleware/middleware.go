@@ -4,9 +4,60 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/utils"
 )
+
+type Middleware func(http.Handler) http.Handler
+
+func CreateStack(md ...Middleware) Middleware {
+	return func(next http.Handler) http.Handler {
+		for i := len(md) - 1; i >= 0; i-- {
+			next = md[i](next)
+		}
+		return next
+	}
+}
+
+func AuthMiddelware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		unprotectedRoutes := []string{
+			"/v1/auth",
+			"/v1/auth/login",
+		}
+
+		for _, route := range unprotectedRoutes {
+			if r.URL.Path == route {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+
+		token := r.Header.Get("Authorization")
+
+		if token == "" {
+			utils.ErrorResponse(w, fmt.Errorf("missing tokne"), http.StatusUnauthorized)
+			return
+		}
+
+		if !strings.HasPrefix(token, "Bearer") {
+			utils.ErrorResponse(w, fmt.Errorf("invalid token type"), http.StatusUnauthorized)
+			return
+		}
+
+		tokenString := strings.TrimPrefix(token, "Bearer ")
+
+		err := utils.ValidateAccessToken(tokenString)
+
+		if err != nil {
+			utils.ErrorResponse(w, err, http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
 
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +94,6 @@ func CORSMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w,r)
+		next.ServeHTTP(w, r)
 	})
 }

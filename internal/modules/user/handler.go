@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/utils"
@@ -14,15 +16,15 @@ type Handler struct {
 }
 
 type Input struct {
-	Username string `json:"username"`
-	Email string `json:"email"`
-	Password string `json:"password"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
 	ConfPassword string `json:"confPassword"`
 }
 
-type AuthenticationRes struct {
-	User entity.User `json:"user"`
-	AccessToken string `json:"accessToken"`
+type AuthRes struct {
+	User        entity.User `json:"user"`
+	AccessToken string      `json:"accessToken"`
 }
 
 func NewHandler(userService UserService) Handler {
@@ -53,9 +55,107 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(user)
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
 
-	utils.SuccessResponse(w, user)
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
 
-	// accessToken, err := utils.GenerateAccessToken(user.Id)
+	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	response := AuthRes{
+		User:        *user,
+		AccessToken: accessToken,
+	}
+
+	utils.SuccessResponse(w, response)
+}
+
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	var input Input
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.userService.Login(input.Email, input.Password)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	response := AuthRes{
+		User: *user,
+		AccessToken: accessToken,
+	}
+
+	utils.SuccessResponse(w, response)
+}
+
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name: "AccessToken",
+		Value: "",
+		Expires: time.Now().Add(-1),
+		Secure: os.Getenv("APP_ENV") == "production",
+		HttpOnly: true,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name: "RefreshToken",
+		Value: "",
+		Expires: time.Now().Add(-1),
+		Secure: os.Getenv("APP_ENV") == "production",
+		HttpOnly: true,
+	})
+	
+	response := struct{
+		Message string `json:"message"`
+	}{
+		Message: "Logout success",
+	}
+
+	utils.SuccessResponse(w, response)
+}
+
+func(h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
+	user, err := utils.DecodeRefreshToken(r)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, &user.Motto)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	utils.SuccessResponse(w, accessToken)
 }

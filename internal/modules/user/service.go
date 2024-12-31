@@ -9,7 +9,7 @@ import (
 
 type UserService interface {
 	Register(username string, email string, password string) (*entity.User, error)
-	Login(username string, email string, password string) (*entity.User, error)
+	Login(email string, password string) (*entity.User, error)
 	Update(id uint64, username string, email string, motto string, password string) (*entity.User, error)
 }
 
@@ -33,15 +33,8 @@ func (s *userService) Register(username string, email string, password string) (
 	return user, nil
 }
 
-func (s *userService) Login(username string, email string, password string) (*entity.User, error) {
-	var user *entity.User
-	var err error
-
-	if username == "" {
-		user, err = s.userRepository.FindOneByEmail(email)
-	} else {
-		user, err = s.userRepository.FindOneByUsername(username)
-	}
+func (s *userService) Login( email string, password string) (*entity.User, error) {
+	user, err := s.userRepository.FindOneByEmail(email)
 
 	if err != nil {
 		return nil, err

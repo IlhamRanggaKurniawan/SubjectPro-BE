@@ -7,7 +7,6 @@ import (
 
 type UserRepository interface {
 	Create(username string, email string, password string) (*entity.User, error)
-	FindOneByUsername(username string) (*entity.User, error)
 	FindOneByEmail(email string) (*entity.User, error)
 	FindOneById(id uint64) (*entity.User, error)
 	Update(user *entity.User) (*entity.User, error)
@@ -29,18 +28,6 @@ func (r *userRepository) Create(username string, email string, password string) 
 	}
 
 	err := r.db.Create(&user).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func (r *userRepository) FindOneByUsername(username string) (*entity.User, error) {
-	var user entity.User
-
-	err := r.db.Where("username = ?", username).Take(&user).Error
 
 	if err != nil {
 		return nil, err

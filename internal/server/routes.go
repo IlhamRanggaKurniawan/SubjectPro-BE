@@ -14,7 +14,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	userService := user.NewService(userRepository)
 	userHandler := user.NewHandler(userService)
 
-	mux.HandleFunc("POST /", userHandler.Register)
+	mux.HandleFunc("POST /v1/auth", userHandler.Register)
+	mux.HandleFunc("POST /v1/auth/login", userHandler.Login)
+	mux.HandleFunc("POST /v1/auth/logout", userHandler.Logout)
+	mux.HandleFunc("GET /v1/auth/token", userHandler.GetToken)
 	
 	return middleware.CORSMiddleware(mux)
 }

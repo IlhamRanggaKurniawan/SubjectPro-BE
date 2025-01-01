@@ -25,11 +25,10 @@ type Claims struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Role     string `json:"role"`
-	Motto    string `json:"motto"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string, email string, role string, motto *string) (string, error) {
+func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string, email string, role string) (string, error) {
 	Exp := time.Now().Add(5 * time.Minute)
 
 	claims := Claims{
@@ -37,14 +36,9 @@ func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string
 		Username: username,
 		Email:    email,
 		Role:     role,
-		Motto:    "",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(Exp),
 		},
-	}
-
-	if motto != nil {
-		claims.Motto = *motto
 	}
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -61,12 +55,13 @@ func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string
 		Expires:  Exp,
 		Secure:   appEnv == "production",
 		HttpOnly: true,
+		Path: "/",
 	})
 
 	return accessTokenStr, nil
 }
 
-func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username string, email string, role string, motto *string) (string, error) {
+func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username string, email string, role string) (string, error) {
 	Exp := time.Now().Add(24 * time.Hour * 7)
 
 	claims := Claims{
@@ -74,14 +69,9 @@ func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username strin
 		Username: username,
 		Email:    email,
 		Role:     role,
-		Motto:    "",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(Exp),
 		},
-	}
-
-	if motto != nil {
-		claims.Motto = *motto
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -98,6 +88,7 @@ func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username strin
 		Expires:  Exp,
 		Secure:   appEnv == "production",
 		HttpOnly: true,
+		Path: "/",
 	})
 
 	return refreshTokenStr, nil

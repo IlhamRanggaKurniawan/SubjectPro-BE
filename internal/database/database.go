@@ -19,8 +19,8 @@ func NewDB() *gorm.DB {
 	}
 
 	err = db.AutoMigrate(
-		entity.User{},
 		entity.Class{},
+		entity.User{},
 		entity.Task{},
 		entity.Subject{},
 		entity.Schedule{},

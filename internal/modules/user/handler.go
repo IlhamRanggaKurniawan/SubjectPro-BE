@@ -55,14 +55,14 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
+	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
@@ -94,14 +94,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.Motto)
+	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
@@ -123,6 +123,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(-1),
 		Secure: os.Getenv("APP_ENV") == "production",
 		HttpOnly: true,
+		Path: "/",
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -131,6 +132,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(-1),
 		Secure: os.Getenv("APP_ENV") == "production",
 		HttpOnly: true,
+		Path: "/",
 	})
 	
 	response := struct{
@@ -150,12 +152,16 @@ func(h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, &user.Motto)
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	utils.SuccessResponse(w, accessToken)
+	response := map[string]string{
+		"accessToken": accessToken,
+	}
+
+	utils.SuccessResponse(w, response)
 }

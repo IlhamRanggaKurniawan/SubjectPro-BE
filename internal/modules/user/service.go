@@ -10,7 +10,7 @@ import (
 type UserService interface {
 	Register(username string, email string, password string) (*entity.User, error)
 	Login(email string, password string) (*entity.User, error)
-	Update(id uint64, username string, email string, motto string, password string) (*entity.User, error)
+	Update(id uint64, username string, email string, password string) (*entity.User, error)
 }
 
 type userService struct {
@@ -49,7 +49,7 @@ func (s *userService) Login( email string, password string) (*entity.User, error
 	return user, nil
 }
 
-func (s *userService) Update(id uint64, username string, email string, motto string, password string) (*entity.User, error) {
+func (s *userService) Update(id uint64, username string, email string, password string) (*entity.User, error) {
 	user, err := s.userRepository.FindOneById(id)
 
 	if err != nil {
@@ -62,10 +62,6 @@ func (s *userService) Update(id uint64, username string, email string, motto str
 
 	if email != "" {
 		user.Email = email
-	}
-
-	if motto != "" {
-		user.Motto = &motto
 	}
 
 	user, err = s.userRepository.Update(user)

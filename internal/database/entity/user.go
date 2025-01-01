@@ -9,7 +9,6 @@ type User struct {
 	Password  string    `gorm:"not null"`
 	Role      string    `gorm:"default:member"`
 	ClassId   *uint64   `gorm:"default:null"`
-	Motto     *string   `gorm:"default:null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }

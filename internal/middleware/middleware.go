@@ -25,6 +25,7 @@ func AuthMiddelware(next http.Handler) http.Handler {
 		unprotectedRoutes := []string{
 			"/v1/auth",
 			"/v1/auth/login",
+			"/v1/auth/token",
 		}
 
 		for _, route := range unprotectedRoutes {
@@ -37,7 +38,7 @@ func AuthMiddelware(next http.Handler) http.Handler {
 		token := r.Header.Get("Authorization")
 
 		if token == "" {
-			utils.ErrorResponse(w, fmt.Errorf("missing tokne"), http.StatusUnauthorized)
+			utils.ErrorResponse(w, fmt.Errorf("token not found"), http.StatusUnauthorized)
 			return
 		}
 

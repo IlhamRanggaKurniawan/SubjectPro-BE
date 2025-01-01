@@ -9,7 +9,7 @@ import (
 
 func (s *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
-	middlewares := middleware.CreateStack(middleware.AuthMiddelware, middleware.CORSMiddleware)
+	middlewares := middleware.CreateStack(middleware.CORSMiddleware, middleware.AuthMiddelware)
 
 	userRepository := user.NewRepo(s.DB)
 	userService := user.NewService(userRepository)

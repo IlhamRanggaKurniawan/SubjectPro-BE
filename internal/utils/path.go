@@ -18,8 +18,8 @@ func GetStringPathParam(r *http.Request, paramName string) (string, error) {
 
 func GetNumberPathParam(r *http.Request, paramName string) (uint64, error) {
 	paramStr := r.PathValue(paramName)
-
-	if paramStr != "" {
+	
+	if paramStr == "" {
 		return 0, fmt.Errorf("parameter %s is empty", paramName)
 	}
 

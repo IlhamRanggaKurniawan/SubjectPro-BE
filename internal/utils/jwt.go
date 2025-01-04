@@ -25,17 +25,19 @@ type Claims struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Role     string `json:"role"`
+	ClassId   uint64 `json:"classId"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string, email string, role string) (string, error) {
-	Exp := time.Now().Add(5 * time.Minute)
+func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string, email string, role string, classId uint64) (string, error) {
+	Exp := time.Now().Add(24 * time.Hour * 7)
 
 	claims := Claims{
 		Id:       id,
 		Username: username,
 		Email:    email,
 		Role:     role,
+		ClassId: classId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(Exp),
 		},
@@ -55,13 +57,13 @@ func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string
 		Expires:  Exp,
 		Secure:   appEnv == "production",
 		HttpOnly: true,
-		Path: "/",
+		Path:     "/",
 	})
 
 	return accessTokenStr, nil
 }
 
-func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username string, email string, role string) (string, error) {
+func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username string, email string, role string, classId uint64) (string, error) {
 	Exp := time.Now().Add(24 * time.Hour * 7)
 
 	claims := Claims{
@@ -69,6 +71,7 @@ func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username strin
 		Username: username,
 		Email:    email,
 		Role:     role,
+		ClassId: classId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(Exp),
 		},
@@ -88,7 +91,7 @@ func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username strin
 		Expires:  Exp,
 		Secure:   appEnv == "production",
 		HttpOnly: true,
-		Path: "/",
+		Path:     "/",
 	})
 
 	return refreshTokenStr, nil
@@ -98,7 +101,7 @@ func DecodeRefreshToken(r *http.Request) (*Claims, error) {
 	cookie, err := r.Cookie("RefreshToken")
 
 	if err != nil {
-		return nil, fmt.Errorf("could not find refresh token in cookies: %v", err)
+		return nil, err
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(t *jwt.Token) (interface{}, error) {
@@ -106,7 +109,7 @@ func DecodeRefreshToken(r *http.Request) (*Claims, error) {
 	})
 
 	if err != nil || !token.Valid {
-		return nil, fmt.Errorf("invalid token: %v", err)
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*Claims)
@@ -122,7 +125,7 @@ func DecodeAccessToken(r *http.Request) (*Claims, error) {
 	cookie, err := r.Cookie("AccessToken")
 
 	if err != nil {
-		return nil, fmt.Errorf("could not find access token in cookies: %v", err)
+		return nil, err
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &Claims{}, func(t *jwt.Token) (interface{}, error) {
@@ -130,7 +133,7 @@ func DecodeAccessToken(r *http.Request) (*Claims, error) {
 	})
 
 	if err != nil || !token.Valid {
-		return nil, fmt.Errorf("invalid token: %v", err)
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*Claims)
@@ -148,7 +151,7 @@ func ValidateAccessToken(accessToken string) error {
 	})
 
 	if err != nil || !token.Valid {
-		return fmt.Errorf("invalid token: %v", err)
+		return err
 	}
 
 	_, ok := token.Claims.(*Claims)

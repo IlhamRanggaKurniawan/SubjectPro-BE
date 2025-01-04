@@ -55,14 +55,14 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role)
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role)
+	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
@@ -94,14 +94,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role)
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role)
+	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
@@ -152,7 +152,7 @@ func(h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role)
+	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)

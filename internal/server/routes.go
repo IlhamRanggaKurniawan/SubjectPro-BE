@@ -5,6 +5,7 @@ import (
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/middleware"
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/modules/class"
+	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/modules/schedule"
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/modules/subject"
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/modules/user"
 )
@@ -25,6 +26,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	subjectService := subject.NewService(subjectRepository)
 	subjectHandler := subject.NewHandler(subjectService)
 
+	scheduleRepository := schedule.NewRepo(s.DB)
+	scheduleService := schedule.NewService(scheduleRepository)
+	scheduleHandler := schedule.NewHandler(scheduleService)
+
 	mux.HandleFunc("POST /v1/auth", userHandler.Register)
 	mux.HandleFunc("POST /v1/auth/login", userHandler.Login)
 	mux.HandleFunc("POST /v1/auth/logout", userHandler.Logout)
@@ -38,5 +43,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("GET /v1/subject/{classId}", subjectHandler.FindAllSubjects)
 	mux.HandleFunc("DELETE /v1/subject/{id}", subjectHandler.DeleteSubject)
 
+	mux.HandleFunc("POST /v1/schedule/{subjectId}", scheduleHandler.CreateSchedule)
+	mux.HandleFunc("DELETE /v1/schedule/{id}", scheduleHandler.DeleteSchedule)
 	return middlewares(mux)
 }

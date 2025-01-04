@@ -22,9 +22,13 @@ func NewService(userRepository UserRepository) UserService {
 }
 
 func (s *userService) Register(username string, email string, password string) (*entity.User, error) {
-	hashedPassword, _ := utils.HashPassword(password)
+	hashedPassword, err := utils.HashPassword(password)
 
-	user, err := s.userRepository.Create(username, email, *hashedPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.userRepository.Create(username, email, hashedPassword)
 
 	if err != nil {
 		return nil, err
@@ -33,7 +37,7 @@ func (s *userService) Register(username string, email string, password string) (
 	return user, nil
 }
 
-func (s *userService) Login( email string, password string) (*entity.User, error) {
+func (s *userService) Login(email string, password string) (*entity.User, error) {
 	user, err := s.userRepository.FindOneByEmail(email)
 
 	if err != nil {
@@ -62,6 +66,16 @@ func (s *userService) Update(id uint64, username string, email string, password 
 
 	if email != "" {
 		user.Email = email
+	}
+
+	if password != "" {
+		hashedPassword, err := utils.HashPassword(password)
+
+		if err != nil {
+			return nil, err
+		}
+
+		user.Password = hashedPassword
 	}
 
 	user, err = s.userRepository.Update(user)

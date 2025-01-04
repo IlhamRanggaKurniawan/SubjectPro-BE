@@ -18,13 +18,15 @@ func NewDB() *gorm.DB {
 		panic("Something went wrong inside the database")
 	}
 
-	// db.Migrator().DropTable(
-	// 	entity.User{},
-	// 	entity.Class{},
-	// 	entity.Task{},
-	// 	entity.Subject{},
-	// 	entity.Schedule{},
-	// )
+	if os.Getenv("APP_ENV") == "development" {
+		db.Migrator().DropTable(
+			entity.User{},
+			entity.Class{},
+			entity.Task{},
+			entity.Subject{},
+			entity.Schedule{},
+		)
+	}
 
 	err = db.AutoMigrate(
 		entity.User{},

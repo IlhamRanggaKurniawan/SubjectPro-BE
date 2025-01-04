@@ -7,9 +7,9 @@ import (
 )
 
 type ClassRepository interface {
-	CreateClass(userId uint64, name string) (*entity.Class, error)
-	FindClass(id uint64) (*entity.Class, error)
-	UpdateClass(class *entity.Class) (*entity.Class, error)
+	Create(userId uint64, name string) (*entity.Class, error)
+	FindById(id uint64) (*entity.Class, error)
+	Update(class *entity.Class) (*entity.Class, error)
 }
 
 type classRepository struct {
@@ -20,7 +20,7 @@ func NewRepo(db *gorm.DB) ClassRepository {
 	return &classRepository{db: db}
 }
 
-func (r *classRepository) CreateClass(userId uint64, name string) (*entity.Class, error) {
+func (r *classRepository) Create(userId uint64, name string) (*entity.Class, error) {
 	admin := []entity.User{
 		{
 			Id: userId,
@@ -47,7 +47,7 @@ func (r *classRepository) CreateClass(userId uint64, name string) (*entity.Class
 	return &class, nil
 }
 
-func (r *classRepository) FindClass(id uint64) (*entity.Class, error) {
+func (r *classRepository) FindById(id uint64) (*entity.Class, error) {
 	var class entity.Class
 
 	err := r.db.Preload("Students").Preload("Subjects").Where("id = ?", id).Take(&class).Error
@@ -59,7 +59,7 @@ func (r *classRepository) FindClass(id uint64) (*entity.Class, error) {
 	return &class, nil
 }
 
-func (r *classRepository) UpdateClass(class *entity.Class) (*entity.Class, error) {
+func (r *classRepository) Update(class *entity.Class) (*entity.Class, error) {
 	err := r.db.Save(class).Error
 
 	if err != nil {

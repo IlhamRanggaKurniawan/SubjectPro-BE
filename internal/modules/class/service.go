@@ -19,7 +19,7 @@ func NewService(classRepo ClassRepository) ClassService {
 }
 
 func (s *classService) CreateClass(userId uint64, name string) (*entity.Class, error) {
-	class, err := s.classRepo.CreateClass(userId, name)
+	class, err := s.classRepo.Create(userId, name)
 
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (s *classService) CreateClass(userId uint64, name string) (*entity.Class, e
 }
 
 func (s *classService) FindClass(id uint64) (*entity.Class, error) {
-	class, err := s.classRepo.FindClass(id)
+	class, err := s.classRepo.FindById(id)
 
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (s *classService) FindClass(id uint64) (*entity.Class, error) {
 }
 
 func (s *classService) AddStudents(id uint64, newStudents []entity.User) (*entity.Class, error) {
-	class, err := s.classRepo.FindClass(id)
+	class, err := s.classRepo.FindById(id)
 
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (s *classService) AddStudents(id uint64, newStudents []entity.User) (*entit
 
 	class.Students = append(class.Students, newStudents...)
 
-	class, err = s.classRepo.UpdateClass(class)
+	class, err = s.classRepo.Update(class)
 
 	if err != nil {
 		return nil, err

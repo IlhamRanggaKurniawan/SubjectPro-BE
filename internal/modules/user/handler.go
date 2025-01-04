@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/utils"
 )
 
@@ -20,11 +19,6 @@ type Input struct {
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 	ConfPassword string `json:"confPassword"`
-}
-
-type AuthRes struct {
-	User        entity.User `json:"user"`
-	AccessToken string      `json:"accessToken"`
 }
 
 func NewHandler(userService UserService) Handler {
@@ -55,13 +49,6 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
-
-	if err != nil {
-		utils.ErrorResponse(w, err, http.StatusInternalServerError)
-		return
-	}
-
 	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
 
 	if err != nil {
@@ -69,12 +56,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := AuthRes{
-		User:        *user,
-		AccessToken: accessToken,
-	}
-
-	utils.SuccessResponse(w, response)
+	utils.SuccessResponse(w, user)
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -94,13 +76,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
-
-	if err != nil {
-		utils.ErrorResponse(w, err, http.StatusInternalServerError)
-		return
-	}
-
 	_, err = utils.GenerateAndSetRefreshToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
 
 	if err != nil {
@@ -108,43 +83,36 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := AuthRes{
-		User: *user,
-		AccessToken: accessToken,
-	}
-
-	utils.SuccessResponse(w, response)
+	utils.SuccessResponse(w, user)
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
-		Name: "AccessToken",
-		Value: "",
-		Expires: time.Now().Add(-1),
-		Secure: os.Getenv("APP_ENV") == "production",
+		Name:     "AccessToken",
+		Value:    "",
+		Expires:  time.Now().Add(-1),
+		Secure:   os.Getenv("APP_ENV") == "production",
 		HttpOnly: true,
-		Path: "/",
+		Path:     "/",
 	})
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "RefreshToken",
-		Value: "",
-		Expires: time.Now().Add(-1),
-		Secure: os.Getenv("APP_ENV") == "production",
+		Name:     "RefreshToken",
+		Value:    "",
+		Expires:  time.Now().Add(-1),
+		Secure:   os.Getenv("APP_ENV") == "production",
 		HttpOnly: true,
-		Path: "/",
+		Path:     "/",
 	})
-	
-	response := struct{
-		Message string `json:"message"`
-	}{
-		Message: "Logout success",
+
+	response := map[string]string{
+		"Message": "Logout success",
 	}
 
 	utils.SuccessResponse(w, response)
 }
 
-func(h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 	user, err := utils.DecodeRefreshToken(r)
 
 	if err != nil {

@@ -11,8 +11,13 @@ import (
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/modules/user"
 )
 
+func roleMiddleware(handler func(http.ResponseWriter, *http.Request)) http.Handler {
+	return http.HandlerFunc(handler)
+}
+
 func (s *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
+
 	middlewares := middleware.CreateStack(middleware.CORSMiddleware, middleware.AuthMiddelware)
 
 	userRepository := user.NewRepo(s.DB)
@@ -20,7 +25,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	userHandler := user.NewHandler(userService)
 
 	classRepository := class.NewRepo(s.DB)
-	classService := class.NewService(classRepository)
+	classService := class.NewService(classRepository, userRepository)
 	classHandler := class.NewHandler(classService)
 
 	subjectRepository := subject.NewRepo(s.DB)
@@ -42,16 +47,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.HandleFunc("POST /v1/class", classHandler.CreateClass)
 	mux.HandleFunc("GET /v1/class/{id}", classHandler.FindClass)
-	mux.HandleFunc("PATCH /v1/class/{id}", classHandler.AddStudents)
+	mux.Handle("PATCH /v1/class/{id}", roleMiddleware(classHandler.AddStudents))
 
-	mux.HandleFunc("POST /v1/subject/{classId}", subjectHandler.CreateSubject)
+	mux.Handle("POST /v1/subject/{classId}", roleMiddleware(subjectHandler.CreateSubject))
 	mux.HandleFunc("GET /v1/subject/{classId}", subjectHandler.FindAllSubjects)
-	mux.HandleFunc("DELETE /v1/subject/{id}", subjectHandler.DeleteSubject)
+	mux.Handle("DELETE /v1/subject/{id}", roleMiddleware(subjectHandler.DeleteSubject))
 
-	mux.HandleFunc("POST /v1/schedule/{subjectId}", scheduleHandler.CreateSchedule)
-	mux.HandleFunc("DELETE /v1/schedule/{id}", scheduleHandler.DeleteSchedule)
+	mux.Handle("POST /v1/schedule/{subjectId}", roleMiddleware(scheduleHandler.CreateSchedule))
+	mux.Handle("DELETE /v1/schedule/{id}", roleMiddleware(scheduleHandler.DeleteSchedule))
 
-	mux.HandleFunc("POST /v1/task/{subjectId}", taskHandler.CreateTask)
-	mux.HandleFunc("DELETE /v1/task/{id}", taskHandler.DeleteTask)
+	mux.Handle("POST /v1/task/{subjectId}", roleMiddleware(taskHandler.CreateTask))
+	mux.Handle("DELETE /v1/task/{id}", roleMiddleware(taskHandler.DeleteTask))
 	return middlewares(mux)
 }

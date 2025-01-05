@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/utils"
 )
 
@@ -13,8 +12,8 @@ type Handler struct {
 }
 
 type Input struct {
-	Name     string        `json:"name"`
-	Students []entity.User `json:"students"`
+	Name     string   `json:"name"`
+	Students []uint64 `json:"students"`
 }
 
 func NewHandler(classService ClassService) Handler {

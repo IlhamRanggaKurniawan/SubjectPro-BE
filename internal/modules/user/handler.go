@@ -56,6 +56,10 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go func(){
+		utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
+	}()
+
 	utils.SuccessResponse(w, user)
 }
 
@@ -82,6 +86,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorResponse(w, err, http.StatusInternalServerError)
 		return
 	}
+
+	go func(){
+		utils.GenerateAndSetAccessToken(w, user.Id, user.Username, user.Email, user.Role, user.ClassId)
+	}()
 
 	utils.SuccessResponse(w, user)
 }

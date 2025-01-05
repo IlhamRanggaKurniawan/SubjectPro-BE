@@ -98,3 +98,23 @@ func CORSMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func RoleMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, err := utils.DecodeAccessToken(r)
+
+		if err != nil {
+			utils.ErrorResponse(w, err, http.StatusUnauthorized)
+			return
+		}
+
+		switch user.Role {
+		case "Admin":
+			next.ServeHTTP(w, r)
+		case "Class Leader":
+			next.ServeHTTP(w, r)
+		default:
+			utils.ErrorResponse(w, fmt.Errorf("access denied"), http.StatusForbidden)
+		}
+	})
+}

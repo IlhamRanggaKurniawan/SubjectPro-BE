@@ -25,19 +25,19 @@ type Claims struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Role     string `json:"role"`
-	ClassId   uint64 `json:"classId"`
+	ClassId  uint64 `json:"classId"`
 	jwt.RegisteredClaims
 }
 
 func GenerateAndSetAccessToken(w http.ResponseWriter, id uint64, username string, email string, role string, classId uint64) (string, error) {
-	Exp := time.Now().Add(24 * time.Hour * 7)
+	Exp := time.Now().Add(5 * time.Minute)
 
 	claims := Claims{
 		Id:       id,
 		Username: username,
 		Email:    email,
 		Role:     role,
-		ClassId: classId,
+		ClassId:  classId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(Exp),
 		},
@@ -71,7 +71,7 @@ func GenerateAndSetRefreshToken(w http.ResponseWriter, id uint64, username strin
 		Username: username,
 		Email:    email,
 		Role:     role,
-		ClassId: classId,
+		ClassId:  classId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(Exp),
 		},

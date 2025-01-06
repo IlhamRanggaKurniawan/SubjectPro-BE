@@ -18,7 +18,7 @@ type Input struct {
 	Username     string `json:"username"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`
-	ConfPassword string `json:"confPassword"`
+	ConfirmPassword string `json:"confirmPassword"`
 }
 
 func NewHandler(userService UserService) Handler {
@@ -37,7 +37,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.Password != input.ConfPassword {
+	if input.Password != input.ConfirmPassword {
 		utils.ErrorResponse(w, fmt.Errorf("password doesn't match"), http.StatusBadRequest)
 		return
 	}

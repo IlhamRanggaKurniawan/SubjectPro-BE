@@ -34,3 +34,4 @@ func (s *taskService) DeleteTask(id uint64) error {
 
 	return err
 }
+

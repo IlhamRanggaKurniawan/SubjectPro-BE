@@ -49,6 +49,33 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	utils.SuccessResponse(w, task)
 }
 
+func (h *Handler) FindAllTaskByDeadline(w http.ResponseWriter, r *http.Request) {
+	subjectId, err := utils.GetNumberPathParam(r, "subjectId")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	var input Input
+
+	err = json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	tasks, err := h.taskService.FindAllByDeadline(input.Deadline, subjectId)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusNotFound)
+		return
+	}
+
+	utils.SuccessResponse(w, tasks)
+}
+
 func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetNumberPathParam(r, "id")
 

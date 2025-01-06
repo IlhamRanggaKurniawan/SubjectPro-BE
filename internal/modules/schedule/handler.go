@@ -49,6 +49,33 @@ func (h *Handler) CreateSchedule(w http.ResponseWriter, r *http.Request) {
 	utils.SuccessResponse(w, schedule)
 }
 
+func (h *Handler) FindAllScheduleByDay(w http.ResponseWriter, r *http.Request) {
+	var input Input
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	subjectId, err  := utils.GetNumberPathParam(r, "subjectId")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	schedules, err := h.scheduleService.FindAllByDay(input.Day, subjectId)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	utils.SuccessResponse(w, schedules)
+}
+
 func(h *Handler) DeleteSchedule(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetNumberPathParam(r, "id")
 

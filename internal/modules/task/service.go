@@ -8,6 +8,7 @@ import (
 
 type TaskService interface {
 	CreateTask(subjectId uint64, taskType string, note string, deadline time.Time) (*entity.Task, error)
+	FindAllByDeadline(deadline time.Time, subjectId uint64) (*[]entity.Task, error)
 	DeleteTask(id uint64) error
 }
 
@@ -22,11 +23,21 @@ func NewService(taskRepository TaskRepository) TaskService {
 func (s *taskService) CreateTask(subjectId uint64, taskType string, note string, deadline time.Time) (*entity.Task, error) {
 	task, err := s.taskRepository.Create(subjectId, taskType, note, deadline)
 
-	if err !=  nil {
+	if err != nil {
 		return nil, err
 	}
 
 	return task, nil
+}
+
+func (s *taskService) FindAllByDeadline(deadline time.Time, subjectId uint64) (*[]entity.Task, error) {
+	tasks, err := s.taskRepository.FindAllByDeadline(deadline, subjectId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }
 
 func (s *taskService) DeleteTask(id uint64) error {
@@ -34,4 +45,3 @@ func (s *taskService) DeleteTask(id uint64) error {
 
 	return err
 }
-

@@ -9,6 +9,7 @@ import (
 
 type ScheduleRepository interface {
 	Create(day string, subjectId uint64, startTime time.Time, endTime time.Time) (*entity.Schedule, error)
+	FindAllByDay(day string, subjectId uint64) (*[]entity.Schedule, error)
 	Delete(id uint64) error
 }
 
@@ -35,6 +36,18 @@ func (r *scheduleRepository) Create(day string, subjectId uint64, startTime time
 	}
 
 	return &schedule, nil
+}
+
+func(r *scheduleRepository) FindAllByDay(day string, subjectId uint64) (*[]entity.Schedule, error) {
+	var schedules []entity.Schedule
+
+	err := r.db.Where("subject_id = ? AND day = ?", subjectId, day).Find(&schedules).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &schedules, err
 }
 
 func (r *scheduleRepository) Delete(id uint64) error {

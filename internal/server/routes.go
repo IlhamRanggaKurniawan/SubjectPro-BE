@@ -54,9 +54,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("DELETE /v1/subject/{id}", roleMiddleware(subjectHandler.DeleteSubject))
 
 	mux.Handle("POST /v1/schedule/{subjectId}", roleMiddleware(scheduleHandler.CreateSchedule))
+	mux.HandleFunc("GET /v1/schedule/{subjectId}", scheduleHandler.FindAllScheduleByDay)
 	mux.Handle("DELETE /v1/schedule/{id}", roleMiddleware(scheduleHandler.DeleteSchedule))
 
 	mux.Handle("POST /v1/task/{subjectId}", roleMiddleware(taskHandler.CreateTask))
+	mux.HandleFunc("GET /v1/task/{subjectId}", taskHandler.FindAllTaskByDeadline)
 	mux.Handle("DELETE /v1/task/{id}", roleMiddleware(taskHandler.DeleteTask))
 	return middlewares(mux)
 }

@@ -9,6 +9,7 @@ import (
 
 type TaskRepository interface {
 	Create(subjectId uint64, taskType string, note string, deadline time.Time) (*entity.Task, error)
+	FindAllByDeadline(deadline time.Time, subjectId uint64) (*[]entity.Task, error)
 	Delete(id uint64) error
 }
 
@@ -35,6 +36,18 @@ func (r *taskRepository) Create(subjectId uint64, taskType string, note string, 
 	}
 
 	return &task, nil
+}
+
+func (r *taskRepository) FindAllByDeadline(deadline time.Time, subjectId uint64) (*[]entity.Task, error) {
+	var tasks []entity.Task
+
+	err := r.db.Where("deadline = ? AND subject_id = ?", deadline, subjectId).Find(&tasks).Error
+
+	if err != nil {
+		return nil,err
+	}
+
+	return &tasks, nil
 }
 
 func (r *taskRepository) Delete(id uint64) error {

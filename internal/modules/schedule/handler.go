@@ -3,7 +3,6 @@ package schedule
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/utils"
 )
@@ -14,8 +13,8 @@ type Handler struct {
 
 type Input struct {
 	Day       string    `json:"day"`
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
+	StartTime string `json:"startTime"`
+	EndTime   string `json:"endTime"`
 }
 
 func NewHandler(scheduleService ScheduleService) Handler {
@@ -50,9 +49,7 @@ func (h *Handler) CreateSchedule(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) FindAllScheduleByDay(w http.ResponseWriter, r *http.Request) {
-	var input Input
-
-	err := json.NewDecoder(r.Body).Decode(&input)
+	day, err := utils.GetStringPathParam(r, "day")
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusBadRequest)
@@ -66,7 +63,7 @@ func (h *Handler) FindAllScheduleByDay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	schedules, err := h.scheduleService.FindAllByDay(input.Day, subjectId)
+	schedules, err := h.scheduleService.FindAllByDay(day, subjectId)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusBadRequest)

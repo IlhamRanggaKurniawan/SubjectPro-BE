@@ -64,6 +64,63 @@ func (h *Handler) FindAllSubjects(w http.ResponseWriter, r *http.Request) {
 	utils.SuccessResponse(w, subjects)
 }
 
+func (h *Handler) FindAllSubjectByDeadline(w http.ResponseWriter, r *http.Request) {
+	day, err := utils.GetStringPathParam(r, "day")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	deadline, err := utils.GetStringPathParam(r, "deadline")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	classId, err := utils.GetNumberPathParam(r, "classId")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	subject, err := h.subjectService.FindAllSubjectByDeadline(classId, day, deadline)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	utils.SuccessResponse(w, subject)
+}
+
+func (h *Handler) FindAllSubjectByDay(w http.ResponseWriter, r *http.Request) {
+	day, err := utils.GetStringPathParam(r, "day")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	classId, err := utils.GetNumberPathParam(r, "classId")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	subject, err := h.subjectService.FindAllSubjectByDay(classId, day)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	utils.SuccessResponse(w, subject)
+}
+
 func (h *Handler) DeleteSubject(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetNumberPathParam(r, "id")
 
@@ -76,7 +133,7 @@ func (h *Handler) DeleteSubject(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusNotFound)
-		return 
+		return
 	}
 
 	response := map[string]string{

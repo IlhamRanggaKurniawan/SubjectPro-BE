@@ -3,7 +3,6 @@ package task
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/utils"
 )
@@ -15,7 +14,7 @@ type Handler struct {
 type Input struct {
 	TaskType string    `json:"taskType"`
 	Note     string    `json:"note"`
-	Deadline time.Time `json:"deadline"`
+	Deadline string `json:"deadline"`
 }
 
 func NewHandler(taskService TaskService) Handler {
@@ -57,16 +56,14 @@ func (h *Handler) FindAllTaskByDeadline(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var input Input
-
-	err = json.NewDecoder(r.Body).Decode(&input)
+	deadline, err := utils.GetStringPathParam(r, "deadline")
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusBadRequest)
 		return
 	}
 
-	tasks, err := h.taskService.FindAllByDeadline(input.Deadline, subjectId)
+	tasks, err := h.taskService.FindAllByDeadline(deadline, subjectId)
 
 	if err != nil {
 		utils.ErrorResponse(w, err, http.StatusNotFound)

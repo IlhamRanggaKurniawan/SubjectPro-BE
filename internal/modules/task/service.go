@@ -1,14 +1,13 @@
 package task
 
 import (
-	"time"
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 )
 
 type TaskService interface {
-	CreateTask(subjectId uint64, taskType string, note string, deadline time.Time) (*entity.Task, error)
-	FindAllByDeadline(deadline time.Time, subjectId uint64) (*[]entity.Task, error)
+	CreateTask(subjectId uint64, taskType string, note string, deadline string) (*entity.Task, error)
+	FindAllByDeadline(deadline string, subjectId uint64) (*[]entity.Task, error)
 	DeleteTask(id uint64) error
 }
 
@@ -20,7 +19,7 @@ func NewService(taskRepository TaskRepository) TaskService {
 	return &taskService{taskRepository: taskRepository}
 }
 
-func (s *taskService) CreateTask(subjectId uint64, taskType string, note string, deadline time.Time) (*entity.Task, error) {
+func (s *taskService) CreateTask(subjectId uint64, taskType string, note string, deadline string) (*entity.Task, error) {
 	task, err := s.taskRepository.Create(subjectId, taskType, note, deadline)
 
 	if err != nil {
@@ -30,7 +29,7 @@ func (s *taskService) CreateTask(subjectId uint64, taskType string, note string,
 	return task, nil
 }
 
-func (s *taskService) FindAllByDeadline(deadline time.Time, subjectId uint64) (*[]entity.Task, error) {
+func (s *taskService) FindAllByDeadline(deadline string, subjectId uint64) (*[]entity.Task, error) {
 	tasks, err := s.taskRepository.FindAllByDeadline(deadline, subjectId)
 
 	if err != nil {

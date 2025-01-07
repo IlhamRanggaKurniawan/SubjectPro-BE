@@ -1,14 +1,13 @@
 package schedule
 
 import (
-	"time"
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 	"gorm.io/gorm"
 )
 
 type ScheduleRepository interface {
-	Create(day string, subjectId uint64, startTime time.Time, endTime time.Time) (*entity.Schedule, error)
+	Create(day string, subjectId uint64, startTime string, endTime string) (*entity.Schedule, error)
 	FindAllByDay(day string, subjectId uint64) (*[]entity.Schedule, error)
 	Delete(id uint64) error
 }
@@ -21,7 +20,7 @@ func NewRepo(db *gorm.DB) ScheduleRepository {
 	return &scheduleRepository{db: db}
 }
 
-func (r *scheduleRepository) Create(day string, subjectId uint64, startTime time.Time, endTime time.Time) (*entity.Schedule, error) {
+func (r *scheduleRepository) Create(day string, subjectId uint64, startTime string, endTime string) (*entity.Schedule, error) {
 	schedule := entity.Schedule{
 		Day:       day,
 		SubjectId: subjectId,
@@ -41,7 +40,7 @@ func (r *scheduleRepository) Create(day string, subjectId uint64, startTime time
 func(r *scheduleRepository) FindAllByDay(day string, subjectId uint64) (*[]entity.Schedule, error) {
 	var schedules []entity.Schedule
 
-	err := r.db.Where("subject_id = ? AND day = ?", subjectId, day).Find(&schedules).Error
+	err := r.db.Where("subject_id = ? AND LOWER(day) = LOWER(?)", subjectId, day).Find(&schedules).Error
 
 	if err != nil {
 		return nil, err

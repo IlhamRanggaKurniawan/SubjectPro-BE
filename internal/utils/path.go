@@ -43,7 +43,7 @@ func GetStringQueryParam(r *http.Request, paramName string) (string, error) {
 	return param, nil
 }
 
-func GetNumberQueryParam(r *http.Request, paramName string, paramType string, errPointer *error) (uint64, error) {
+func GetNumberQueryParam(r *http.Request, paramName string) (uint64, error) {
 	queryValues := r.URL.Query()
 
 	paramStr := queryValues.Get(paramName)

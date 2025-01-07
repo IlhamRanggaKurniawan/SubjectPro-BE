@@ -1,13 +1,12 @@
 package schedule
 
 import (
-	"time"
 
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 )
 
 type ScheduleService interface {
-	CreateSchedule(day string, subjectId uint64, startTime time.Time, endTime time.Time) (*entity.Schedule, error)
+	CreateSchedule(day string, subjectId uint64, startTime string, endTime string) (*entity.Schedule, error)
 	FindAllByDay(day string, subjectId uint64) (*[]entity.Schedule, error)
 	DeleteSchedule(id uint64) error
 }
@@ -20,7 +19,7 @@ func NewService(scheduleRepository ScheduleRepository) ScheduleService {
 	return &scheduleService{scheduleRepository: scheduleRepository}
 }
 
-func (s *scheduleService) CreateSchedule(day string, subjectId uint64, startTime time.Time, endTime time.Time) (*entity.Schedule, error) {
+func (s *scheduleService) CreateSchedule(day string, subjectId uint64, startTime string, endTime string) (*entity.Schedule, error) {
 	schedule, err := s.scheduleRepository.Create(day, subjectId, startTime, endTime)
 
 	if err != nil {

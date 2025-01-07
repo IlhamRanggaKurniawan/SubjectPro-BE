@@ -47,18 +47,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.HandleFunc("POST /v1/class", classHandler.CreateClass)
 	mux.HandleFunc("GET /v1/class/{id}", classHandler.FindClass)
+	// mux.HandleFunc("GET /v1/class/{id}/{day}", classHandler.FindClassWithSchedule)
 	mux.Handle("PATCH /v1/class/{id}", roleMiddleware(classHandler.AddStudents))
 
 	mux.Handle("POST /v1/subject/{classId}", roleMiddleware(subjectHandler.CreateSubject))
 	mux.HandleFunc("GET /v1/subject/{classId}", subjectHandler.FindAllSubjects)
+	mux.HandleFunc("GET /v1/subject/{classId}/{day}/{deadline}", subjectHandler.FindAllSubjectByDeadline)
+	mux.HandleFunc("GET /v1/subject/{classId}/{day}", subjectHandler.FindAllSubjectByDay)
 	mux.Handle("DELETE /v1/subject/{id}", roleMiddleware(subjectHandler.DeleteSubject))
 
 	mux.Handle("POST /v1/schedule/{subjectId}", roleMiddleware(scheduleHandler.CreateSchedule))
-	mux.HandleFunc("GET /v1/schedule/{subjectId}", scheduleHandler.FindAllScheduleByDay)
+	mux.HandleFunc("GET /v1/schedule/{subjectId}/{day}", scheduleHandler.FindAllScheduleByDay)
 	mux.Handle("DELETE /v1/schedule/{id}", roleMiddleware(scheduleHandler.DeleteSchedule))
 
 	mux.Handle("POST /v1/task/{subjectId}", roleMiddleware(taskHandler.CreateTask))
-	mux.HandleFunc("GET /v1/task/{subjectId}", taskHandler.FindAllTaskByDeadline)
+	mux.HandleFunc("GET /v1/task/{subjectId}/{deadline}", taskHandler.FindAllTaskByDeadline)
 	mux.Handle("DELETE /v1/task/{id}", roleMiddleware(taskHandler.DeleteTask))
 	return middlewares(mux)
 }

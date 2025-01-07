@@ -1,7 +1,6 @@
 package class
 
 import (
-
 	"github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 	"gorm.io/gorm"
 )

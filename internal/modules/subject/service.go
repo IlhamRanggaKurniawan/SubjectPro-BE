@@ -5,6 +5,8 @@ import "github.com/IlhamRanggaKurniawan/Teamers.git/internal/database/entity"
 type SubjectService interface {
 	CreateSubject(name string, classId uint64) (*entity.Subject, error)
 	FindAllSubjects(classId uint64) (*[]entity.Subject, error)
+	FindAllSubjectByDeadline(classId uint64, day string, deadline string) (*[]entity.Subject, error)
+	FindAllSubjectByDay(classId uint64, day string) (*[]entity.Subject, error)
 	DeleteSubject(id uint64) error
 }
 
@@ -34,6 +36,26 @@ func (s *subjectService) FindAllSubjects(classId uint64) (*[]entity.Subject, err
 	}
 
 	return subjects, nil
+}
+
+func (s *subjectService) FindAllSubjectByDeadline(classId uint64, day string, deadline string) (*[]entity.Subject, error) {
+	subject, err := s.subjectRepository.FindAllByDeadline(classId, day, deadline)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return subject, nil
+}
+
+func (s *subjectService) FindAllSubjectByDay(classId uint64, day string) (*[]entity.Subject, error) {
+	subject, err := s.subjectRepository.FindAllByDay(classId, day)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return subject, nil
 }
 
 func (s *subjectService) DeleteSubject(id uint64) error {

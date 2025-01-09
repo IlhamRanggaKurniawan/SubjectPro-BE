@@ -10,7 +10,7 @@ import (
 type ClassService interface {
 	CreateClass(userId uint64, name string) (*entity.Class, error)
 	FindClass(id uint64) (*entity.Class, error)
-	AddStudents(id uint64, newStudentsIds []uint64) (*entity.Class, error)
+	AddStudents(id uint64, newStudentsEmails []string) (*entity.Class, error)
 }
 
 type classService struct {
@@ -42,15 +42,15 @@ func (s *classService) FindClass(id uint64) (*entity.Class, error) {
 	return class, nil
 }
 
-func (s *classService) AddStudents(id uint64, newStudentsIds []uint64) (*entity.Class, error) {
-	users, err := s.userRepo.FindManyById(newStudentsIds)
+func (s *classService) AddStudents(id uint64, newStudentsEmails []string) (*entity.Class, error) {
+	users, err := s.userRepo.FindManyByEmail(newStudentsEmails)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if len(*users) == 0 {
-		return nil, fmt.Errorf("no users found for the given IDs: %v", newStudentsIds)
+		return nil, fmt.Errorf("no users found for the given IDs: %v", newStudentsEmails)
 	}
 
 	class, err := s.classRepo.FindById(id)

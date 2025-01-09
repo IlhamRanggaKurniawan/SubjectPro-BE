@@ -10,6 +10,8 @@ type UserRepository interface {
 	FindOneByEmail(email string) (*entity.User, error)
 	FindOneById(id uint64) (*entity.User, error)
 	FindManyById(ids []uint64) (*[]entity.User, error)
+	FindManyByEmail(emails []string) (*[]entity.User, error)
+	FindManyLikeEmail(email string) (*[]entity.User, error)
 	Update(user *entity.User) (*entity.User, error)
 }
 
@@ -65,6 +67,30 @@ func (r *userRepository) FindManyById(ids []uint64) (*[]entity.User, error) {
 	var users []entity.User
 
 	err := r.db.Where("id IN ?", ids).Find(&users).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &users, nil
+}
+
+func (r *userRepository) FindManyByEmail(emails []string) (*[]entity.User, error) {
+	var users []entity.User
+
+	err := r.db.Where("email IN ?", emails).Find(&users).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &users, nil
+}
+
+func (r *userRepository) FindManyLikeEmail(email string) (*[]entity.User, error) {
+	var users []entity.User
+
+	err := r.db.Where("email ILIKE ? AND class_id IS NULL", "%"+email+"%").Limit(5).Find(&users).Error
 
 	if err != nil {
 		return nil, err

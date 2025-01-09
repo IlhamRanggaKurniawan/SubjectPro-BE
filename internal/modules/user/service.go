@@ -10,6 +10,7 @@ import (
 type UserService interface {
 	Register(username string, email string, password string) (*entity.User, error)
 	Login(email string, password string) (*entity.User, error)
+	FindUserLikeEmail(email string) (*[]entity.User, error)
 	Update(id uint64, username string, email string, password string) (*entity.User, error)
 }
 
@@ -51,6 +52,16 @@ func (s *userService) Login(email string, password string) (*entity.User, error)
 	}
 
 	return user, nil
+}
+
+func (s *userService) FindUserLikeEmail(email string) (*[]entity.User, error) {
+	users, err := s.userRepository.FindManyLikeEmail(email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (s *userService) Update(id uint64, username string, email string, password string) (*entity.User, error) {

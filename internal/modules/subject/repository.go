@@ -71,7 +71,6 @@ func (r *subjectRepository) FindAllByDay(classId uint64, day string) (*[]entity.
 	return &subjects, nil
 }
 
-
 func (r *subjectRepository) Delete(id uint64) error {
 	err := r.db.Delete(entity.Subject{}, id).Error
 

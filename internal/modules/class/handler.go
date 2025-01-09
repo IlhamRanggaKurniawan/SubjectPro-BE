@@ -13,7 +13,7 @@ type Handler struct {
 
 type Input struct {
 	Name     string   `json:"name"`
-	Students []uint64 `json:"students"`
+	Students []string `json:"students"`
 }
 
 func NewHandler(classService ClassService) Handler {

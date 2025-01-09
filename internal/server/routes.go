@@ -45,9 +45,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("POST /v1/auth/logout", userHandler.Logout)
 	mux.HandleFunc("GET /v1/auth/token", userHandler.GetToken)
 
+	mux.HandleFunc("GET /v1/user", userHandler.FindUserLikeEmail)
+
 	mux.HandleFunc("POST /v1/class", classHandler.CreateClass)
 	mux.HandleFunc("GET /v1/class/{id}", classHandler.FindClass)
-	// mux.HandleFunc("GET /v1/class/{id}/{day}", classHandler.FindClassWithSchedule)
 	mux.Handle("PATCH /v1/class/{id}", roleMiddleware(classHandler.AddStudents))
 
 	mux.Handle("POST /v1/subject/{classId}", roleMiddleware(subjectHandler.CreateSubject))

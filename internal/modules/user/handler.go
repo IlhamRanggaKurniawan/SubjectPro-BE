@@ -94,6 +94,24 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	utils.SuccessResponse(w, user)
 }
 
+func (h *Handler) FindUserLikeEmail(w http.ResponseWriter, r *http.Request) {
+	email, err := utils.GetStringQueryParam(r, "email")
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	users, err := h.userService.FindUserLikeEmail(email)
+
+	if err != nil {
+		utils.ErrorResponse(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	utils.SuccessResponse(w, users)
+}
+
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "AccessToken",
